@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="ivy-report.xsl"?>
+<ivy-report version="1.0">
+	<info
+		organisation="entropysoft"
+		module="test"
+		revision="working@silver"
+		conf="compile"
+		confs="default, publish, master, compile, distrib, nondistrib, source, documentation, test"
+		date="20120208151710"/>
+	<dependencies>
+		<module organisation="log4j" name="log4j">
+			<revision name="1.2.15" status="release" pubdate="20091008120518" resolver="default-chain" artresolver="default-chain" downloaded="false" searched="false" default="false" conf="default, compile, runtime, master" position="0">
+				<metadata-artifact status="no" details="" size="1864" time="0" location="/home/cedric/.ivy2/cache/log4j/log4j/ivy-1.2.15.xml" searched="false" origin-is-local="true" origin-location="/mnt/cyclades/ivyrepository/log4j/log4j/ivy-1.2.15.xml"/>
+				<caller organisation="entropysoft" name="test" conf="compile" rev="1.2.15" rev-constraint-default="1.2.15" rev-constraint-dynamic="1.2.15" callerrev="working@silver"/>
+				<artifacts>
+					<artifact name="log4j" type="jar" ext="jar" status="no" details="" size="391834" time="0" location="/home/cedric/.ivy2/cache/log4j/log4j/jars/log4j-1.2.15.jar">
+						<origin-location is-local="true" location="/mnt/cyclades/ivyrepository/log4j/log4j/log4j-1.2.15.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
+	</dependencies>
+</ivy-report>
