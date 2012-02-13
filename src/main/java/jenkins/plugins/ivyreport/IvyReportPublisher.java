@@ -69,6 +69,10 @@ public class IvyReportPublisher extends Recorder {
 		this.resolveId = resolveId;
 	}
 
+	public String getResolveId() {
+		return resolveId;
+	}
+	
 	public String getIvyReportConfigurations() {
 		return ivyReportConfigurations;
 	}
