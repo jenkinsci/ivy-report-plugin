@@ -11,6 +11,11 @@ import org.jvnet.hudson.test.HudsonTestCase;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
+/**
+ * 
+ * @author Cedric Chabanois (cchabanois at gmail.com)
+ *
+ */
 public class IvyReportGeneratorTest extends HudsonTestCase {
 	private static final File RESOLUTION_CACHE_ROOT = new File(
 			"resources/testResolutionCache");
