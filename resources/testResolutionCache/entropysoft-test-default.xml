@@ -7,16 +7,37 @@
 		revision="working@silver"
 		conf="default"
 		confs="default, publish, master, compile, distrib, nondistrib, source, documentation, test"
-		date="20120208151710"/>
+		date="20120214222320"/>
 	<dependencies>
+		<module organisation="log4j" name="apache-log4j-extras">
+			<revision name="1.1" status="release" pubdate="20101202042321" resolver="ibiblio" artresolver="ibiblio" homepage="http://logging.apache.org:80/log4j/companions/extras" downloaded="false" searched="false" default="false" conf="default, compile, runtime, master" position="0">
+				<license name="Apache License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt"/>
+				<metadata-artifact status="no" details="" size="3531" time="0" location="/home/cedric/.ivy2/cache/log4j/apache-log4j-extras/ivy-1.1.xml" searched="false" origin-is-local="false" origin-location="http://repo1.maven.org/maven2/log4j/apache-log4j-extras/1.1/apache-log4j-extras-1.1.pom"/>
+				<caller organisation="entropysoft" name="test" conf="default, nondistrib, distrib, master" rev="1.1" rev-constraint-default="1.1" rev-constraint-dynamic="1.1" callerrev="working@silver"/>
+				<artifacts>
+					<artifact name="apache-log4j-extras" type="bundle" ext="jar" status="no" details="" size="346729" time="0" location="/home/cedric/.ivy2/cache/log4j/apache-log4j-extras/bundles/apache-log4j-extras-1.1.jar">
+						<origin-location is-local="false" location="http://repo1.maven.org/maven2/log4j/apache-log4j-extras/1.1/apache-log4j-extras-1.1.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+		</module>
 		<module organisation="log4j" name="log4j">
-			<revision name="1.2.15" status="release" pubdate="20091008120518" resolver="default-chain" artresolver="default-chain" downloaded="false" searched="false" default="false" conf="default, compile, runtime, master" position="0">
+			<revision name="1.2.16" status="release" pubdate="20100331062544" resolver="ibiblio" artresolver="ibiblio" homepage="http://logging.apache.org/log4j/1.2/" downloaded="false" searched="false" default="false" conf="default, compile, master(*), runtime, compile(*), runtime(*), master" position="1">
+				<license name="The Apache Software License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt"/>
+				<metadata-artifact status="no" details="" size="3521" time="0" location="/home/cedric/.ivy2/cache/log4j/log4j/ivy-1.2.16.xml" searched="false" origin-is-local="false" origin-location="http://repo1.maven.org/maven2/log4j/log4j/1.2.16/log4j-1.2.16.pom"/>
+				<caller organisation="entropysoft" name="test" conf="default, nondistrib, distrib, master" rev="1.2.15" rev-constraint-default="1.2.15" rev-constraint-dynamic="1.2.15" callerrev="working@silver"/>
+				<caller organisation="log4j" name="apache-log4j-extras" conf="default, compile, runtime, master" rev="1.2.16" rev-constraint-default="1.2.16" rev-constraint-dynamic="1.2.16" callerrev="1.1"/>
+				<artifacts>
+					<artifact name="log4j" type="bundle" ext="jar" status="no" details="" size="481535" time="0" location="/home/cedric/.ivy2/cache/log4j/log4j/bundles/log4j-1.2.16.jar">
+						<origin-location is-local="false" location="http://repo1.maven.org/maven2/log4j/log4j/1.2.16/log4j-1.2.16.jar"/>
+					</artifact>
+				</artifacts>
+			</revision>
+			<revision name="1.2.15" status="release" pubdate="20091008120518" resolver="default-chain" artresolver="default-chain" evicted="latest-revision" evicted-reason="" downloaded="false" searched="false" default="false" conf="default, compile, runtime, master" position="-1">
 				<metadata-artifact status="no" details="" size="1864" time="0" location="/home/cedric/.ivy2/cache/log4j/log4j/ivy-1.2.15.xml" searched="false" origin-is-local="true" origin-location="/mnt/cyclades/ivyrepository/log4j/log4j/ivy-1.2.15.xml"/>
+				<evicted-by rev="1.2.16"/>
 				<caller organisation="entropysoft" name="test" conf="default, nondistrib, distrib, master" rev="1.2.15" rev-constraint-default="1.2.15" rev-constraint-dynamic="1.2.15" callerrev="working@silver"/>
 				<artifacts>
-					<artifact name="log4j" type="jar" ext="jar" status="no" details="" size="391834" time="0" location="/home/cedric/.ivy2/cache/log4j/log4j/jars/log4j-1.2.15.jar">
-						<origin-location is-local="true" location="/mnt/cyclades/ivyrepository/log4j/log4j/log4j-1.2.15.jar"/>
-					</artifact>
 				</artifacts>
 			</revision>
 		</module>

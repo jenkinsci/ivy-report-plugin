@@ -125,7 +125,7 @@ public class IvyReportGenerator {
     private File getDotXslFile() throws IOException {
         // style should be a file (and not an url)
         File style = new File(resolutionCacheRoot, "ivy-report-dot.xsl");
-        FileUtil.copy(XmlReportOutputter.class.getResourceAsStream("ivy-report-dot.xsl"), style, null);
+        FileUtil.copy(this.getClass().getResourceAsStream("ivy-report-dot.xsl"), style, null);
         return style;
     }	
 	
