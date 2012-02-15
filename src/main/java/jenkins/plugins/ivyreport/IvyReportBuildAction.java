@@ -43,7 +43,7 @@ import org.kohsuke.stapler.StaplerResponse;
  *
  */
 public class IvyReportBuildAction implements Action {
-	private static final String ICON_FILENAME = "/plugin/ivy-report-plugin/ivyReport.png";
+	private static final String ICON_FILENAME = "/plugin/ivy-report/ivyReport.png";
 	private final IvyModuleSetBuild build;
 	private final String indexFileName;
 	
