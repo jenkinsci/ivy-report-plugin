@@ -7,7 +7,7 @@
   </parent>
 
   <artifactId>ivy-report</artifactId>
-  <version>1.1</version>
+  <version>1.2-SNAPSHOT</version>
   <packaging>hpi</packaging>
   <name>Ivy Report Plugin</name>
   <url>http://wiki.jenkins-ci.org/display/JENKINS/Ivy+Report+Plugin</url>
