@@ -40,13 +40,13 @@ public class IvyReportGeneratorTest extends HudsonTestCase {
 				"entropysoft-test-compile.html");
 		assertTrue(compileHtmlFile.exists());
 		assertTrue(Files.toString(compileHtmlFile, Charsets.UTF_8).contains(
-				"<img src=\"entropysoft-test-compile.svg\">"));
+				"<object data=\"entropysoft-test-compile.svg\" type=\"image/svg+xml\">"));
 		assertTrue(new File(targetDir, "entropysoft-test-compile.svg").exists());
 		File defaultHtmlFile = new File(targetDir,
 				"entropysoft-test-default.html");
 		assertTrue(defaultHtmlFile.exists());
 		assertTrue(Files.toString(defaultHtmlFile, Charsets.UTF_8).contains(
-				"<img src=\"entropysoft-test-default.svg\">"));
+				"<object data=\"entropysoft-test-default.svg\" type=\"image/svg+xml\">"));
 		assertTrue(new File(targetDir, "entropysoft-test-default.svg").exists());
 	}
 

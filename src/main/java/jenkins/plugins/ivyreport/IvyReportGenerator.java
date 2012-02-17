@@ -186,6 +186,7 @@ public class IvyReportGenerator {
 			// add standard parameters
 			transformer.setParameter("confs", getConfsAsComaSeparatedString());
 			transformer.setParameter("extension", "html");
+			transformer.setParameter("resolveId", resolveId);
 
 			File[] generatedFiles = new File[confs.length];
 			// create the report

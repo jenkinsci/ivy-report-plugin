@@ -22,6 +22,7 @@
 
 <xsl:param name="confs"    select="/ivy-report/info/@confs"/>
 <xsl:param name="extension"    select="'xml'"/>
+<xsl:param name="resolveId">resolveId</xsl:param>
 
 <xsl:variable name="myorg"    select="/ivy-report/info/@organisation"/>
 <xsl:variable name="mymod"    select="/ivy-report/info/@module"/>
@@ -289,9 +290,9 @@
     
     <h2>Dependency graph</h2>
     <p>
-        <xsl:element name="img">
-         <xsl:attribute name="src"><xsl:value-of select="$myorg"/>-<xsl:value-of select="$mymod"/>-<xsl:value-of select="$myconf"/>.svg</xsl:attribute>
-<!--          <xsl:value-of select="$conf"/> -->
+        <xsl:element name="object">
+         <xsl:attribute name="data"><xsl:value-of select="$resolveId"/>-<xsl:value-of select="$myconf"/>.svg</xsl:attribute>
+         <xsl:attribute name="type">image/svg+xml</xsl:attribute>
        </xsl:element>
     </p>
     
