@@ -77,7 +77,7 @@ public class IvyReportBuildAction implements Action {
 	}
 
 	protected String getTitle() {
-		return build.getDisplayName() + " javadoc";
+		return build.getDisplayName() + " Ivy report";
 	}
 
 }
