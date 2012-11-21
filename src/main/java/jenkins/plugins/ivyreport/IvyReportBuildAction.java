@@ -23,6 +23,7 @@
  */
 package jenkins.plugins.ivyreport;
 
+import hudson.FilePath;
 import hudson.ivy.IvyModuleSetBuild;
 import hudson.model.Action;
 import hudson.model.DirectoryBrowserSupport;
@@ -30,6 +31,7 @@ import hudson.model.DirectoryBrowserSupport;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -48,6 +50,15 @@ public class IvyReportBuildAction implements Action {
 
 	private final File dir;
 	private final List<IvyReport> reports;
+
+	// backward compatibility:
+	private IvyModuleSetBuild build;
+	private String indexFileName;
+
+	private IvyReportBuildAction() {
+		this.dir = null;
+		this.reports = null;
+	}
 
 	public IvyReportBuildAction(File dir, List<IvyReport> reports) {
 		super();
@@ -68,6 +79,10 @@ public class IvyReportBuildAction implements Action {
 	}
 
 	public List<IvyReport> getReports() {
+		if (reports == null) {
+			File report = new File(new File(build.getRootDir(), "ivyreport"), indexFileName);
+			return Collections.singletonList(new IvyReport(null, new FilePath(report)));
+		}
 		return reports;
 	}
 
