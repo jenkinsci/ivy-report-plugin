@@ -78,8 +78,7 @@ public class IvyReportBuildAction implements Action {
 				moduleName = moduleName.substring(1);
 			}
 			for (IvyReport report : reports) {
-				if (moduleName.equals(report.getIvyModule().getModuleName()
-						.toFileSystemName())) {
+				if (moduleName.equals(report.getName().toFileSystemName())) {
 					return report;
 				}
 			}

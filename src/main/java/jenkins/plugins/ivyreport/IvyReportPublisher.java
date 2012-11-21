@@ -131,7 +131,7 @@ public class IvyReportPublisher extends Recorder {
 					Hudson.getInstance(), resolveId, confs, reportsDir,
 					reportsDir);
 			File htmlReport = ivyReportGenerator.generateReports();
-			result.add(new IvyReport(module, new FilePath(htmlReport)));
+			result.add(new IvyReport(module.getModuleName(), new FilePath(htmlReport)));
 		}
 		return result;
 	}

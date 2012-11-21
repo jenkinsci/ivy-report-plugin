@@ -24,6 +24,7 @@
 package jenkins.plugins.ivyreport;
 
 import hudson.FilePath;
+import hudson.ivy.ModuleName;
 import hudson.ivy.IvyModule;
 
 import java.io.IOException;
@@ -35,17 +36,17 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
 public class IvyReport implements HttpResponse {
-	private final IvyModule ivyModule;
+	private final ModuleName name;
 	private final FilePath path;
 
-	public IvyReport(IvyModule ivyModule, FilePath path) {
+	public IvyReport(ModuleName name, FilePath path) {
 		super();
-		this.ivyModule = ivyModule;
+		this.name = name;
 		this.path = path;
 	}
 
-	public IvyModule getIvyModule() {
-		return ivyModule;
+	public ModuleName getName() {
+		return name;
 	}
 
 	@Override
