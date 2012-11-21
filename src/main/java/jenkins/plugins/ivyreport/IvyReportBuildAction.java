@@ -23,13 +23,14 @@
  */
 package jenkins.plugins.ivyreport;
 
-import hudson.FilePath;
 import hudson.ivy.IvyModuleSetBuild;
 import hudson.model.Action;
 import hudson.model.DirectoryBrowserSupport;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.List;
 
 import javax.servlet.ServletException;
 
@@ -40,16 +41,18 @@ import org.kohsuke.stapler.StaplerResponse;
  * Action used to display the ivy report for the build
  * 
  * @author Cedric Chabanois (cchabanois at gmail.com)
- *
+ * 
  */
 public class IvyReportBuildAction implements Action {
 	private static final String ICON_FILENAME = "/plugin/ivy-report/ivyReport.png";
-	private final IvyModuleSetBuild build;
-	private final String indexFileName;
-	
-	public IvyReportBuildAction(IvyModuleSetBuild build, String indexFileName) {
-		this.build = build;
-		this.indexFileName = indexFileName;
+
+	private final File dir;
+	private final List<IvyReport> reports;
+
+	public IvyReportBuildAction(File dir, List<IvyReport> reports) {
+		super();
+		this.dir = dir;
+		this.reports = reports;
 	}
 
 	public String getUrlName() {
@@ -64,20 +67,29 @@ public class IvyReportBuildAction implements Action {
 		return ICON_FILENAME;
 	}
 
-	public void doDynamic(StaplerRequest req, StaplerResponse rsp)
-			throws IOException, ServletException {
-		DirectoryBrowserSupport directoryBrowserSupport = new DirectoryBrowserSupport(
-				this, new FilePath(dir()), getTitle(), null, false);
-		directoryBrowserSupport.setIndexFileName(indexFileName);
-		directoryBrowserSupport.generateResponse(req, rsp, this);
+	public List<IvyReport> getReports() {
+		return reports;
 	}
 
-	private File dir() {
-		return new File(build.getRootDir(), "ivyreport");
-	}
-
-	protected String getTitle() {
-		return build.getDisplayName() + " Ivy report";
+	public IvyReport doReport(StaplerRequest req, StaplerResponse res) throws MalformedURLException, ServletException, IOException {
+		String moduleName = req.getRestOfPath();
+		if (!moduleName.isEmpty()) {
+			if (moduleName.charAt(0) == '/') {
+				moduleName = moduleName.substring(1);
+			}
+			for (IvyReport report : reports) {
+				if (moduleName.equals(report.getIvyModule().getModuleName()
+						.toFileSystemName())) {
+					return report;
+				}
+			}
+		}
+		// handle CSS, etc.
+		File siblingFile = new File(dir, moduleName);
+		if (siblingFile.exists()) {
+			res.serveFile(req, siblingFile.toURI().toURL());
+		}
+		return null;
 	}
 
 }
