@@ -24,9 +24,9 @@
 package jenkins.plugins.ivyreport;
 
 import hudson.FilePath;
+import hudson.ivy.ModuleName;
 import hudson.ivy.IvyModuleSetBuild;
 import hudson.model.Action;
-import hudson.model.DirectoryBrowserSupport;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,7 +49,7 @@ public class IvyReportBuildAction implements Action {
 	private static final String ICON_FILENAME = "/plugin/ivy-report/ivyReport.png";
 
 	private final File dir;
-	private final List<IvyReport> reports;
+	private List<IvyReport> reports;
 
 	// backward compatibility:
 	private IvyModuleSetBuild build;
@@ -81,7 +81,15 @@ public class IvyReportBuildAction implements Action {
 	public List<IvyReport> getReports() {
 		if (reports == null) {
 			File report = new File(new File(build.getRootDir(), "ivyreport"), indexFileName);
-			return Collections.singletonList(new IvyReport(null, new FilePath(report)));
+			final ModuleName dummy = new ModuleName(null, null) {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public String toFileSystemName() {
+					return indexFileName;
+				}
+			};
+			reports = Collections.singletonList(new IvyReport(dummy, new FilePath(report)));
 		}
 		return reports;
 	}
