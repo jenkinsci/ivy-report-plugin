@@ -78,7 +78,7 @@ public class IvyReportBuildAction implements Action {
 		return ICON_FILENAME;
 	}
 
-	public List<IvyReport> getReports() {
+	public synchronized List<IvyReport> getReports() {
 		if (reports == null) {
 			File report = new File(new File(build.getRootDir(), "ivyreport"), indexFileName);
 			final ModuleName dummy = new ModuleName(null, null) {
@@ -100,7 +100,7 @@ public class IvyReportBuildAction implements Action {
 			if (moduleName.charAt(0) == '/') {
 				moduleName = moduleName.substring(1);
 			}
-			for (IvyReport report : reports) {
+			for (IvyReport report : getReports()) {
 				if (moduleName.equals(report.getName().toFileSystemName())) {
 					return report;
 				}
