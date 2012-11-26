@@ -87,7 +87,7 @@ public class IvyReportGenerator {
 		}
 	}
 	
-	private String getConfsAsComaSeparatedString() {
+	private String getConfsAsCommaSeparatedString() {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < confs.length; i++) {
 			if (i != 0) {
@@ -184,7 +184,7 @@ public class IvyReportGenerator {
 			Transformer transformer = tFactory.newTransformer(xsltSource);
 
 			// add standard parameters
-			transformer.setParameter("confs", getConfsAsComaSeparatedString());
+			transformer.setParameter("confs", getConfsAsCommaSeparatedString());
 			transformer.setParameter("extension", "html");
 			transformer.setParameter("resolveId", resolveId);
 

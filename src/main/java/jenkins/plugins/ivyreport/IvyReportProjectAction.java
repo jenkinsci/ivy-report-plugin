@@ -23,15 +23,16 @@
  */
 package jenkins.plugins.ivyreport;
 
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+
 import hudson.ivy.IvyModuleSet;
 import hudson.model.Action;
 import hudson.model.Result;
 import hudson.model.AbstractBuild;
 
-import java.io.IOException;
-
-import javax.servlet.ServletException;
-
+import org.kohsuke.stapler.StaplerProxy;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
@@ -41,9 +42,20 @@ import org.kohsuke.stapler.StaplerResponse;
  * @author Cedric Chabanois (cchabanois at gmail.com)
  *
  */
-public class IvyReportProjectAction implements Action {
-	private final IvyModuleSet project;
+public class IvyReportProjectAction implements Action, StaplerProxy {
 	private static final String ICON_FILENAME = "/plugin/ivy-report/ivyReport.png";
+
+	public static class Noop {
+		public static final Noop INSTANCE = new Noop();
+		private Noop() {
+		}
+
+		public void doDynamic(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
+			res.forwardToPreviousPage(req);
+		}
+	}
+
+	private final IvyModuleSet project;
 	
 	public IvyReportProjectAction(IvyModuleSet ivyModuleSet) {
 		this.project = ivyModuleSet;
@@ -64,23 +76,16 @@ public class IvyReportProjectAction implements Action {
 		return "ivyreport";
 	} 
 
-	public void doDynamic(StaplerRequest req, StaplerResponse rsp)
-			throws IOException, ServletException {
-		IvyReportBuildAction lastResult = getLastResult();
-		if (lastResult != null) {
-			lastResult.doDynamic(req, rsp);
-		}
-	}
-	
-	private IvyReportBuildAction getLastResult() {
+	@Override
+	public Object getTarget() {
 		for (AbstractBuild<?, ?> b = project.getLastSuccessfulBuild(); b != null; b = b.getPreviousNotFailedBuild()) {
-            if (b.getResult() == Result.FAILURE)
-                continue;
-            IvyReportBuildAction r = b.getAction(IvyReportBuildAction.class);
-            if (r != null)
-                return r;
-        }
-        return null;
+			if (b.getResult() == Result.FAILURE)
+				continue;
+			IvyReportBuildAction r = b.getAction(IvyReportBuildAction.class);
+			if (r != null)
+				return r;
+		}
+		return Noop.INSTANCE;
 	}
-	
+
 }
