@@ -1,7 +1,7 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
   <j:choose>
-    <j:when test="${size(it.reports)} == 1">
-      <st:redirect url="${it.reports[0].url}" />
+    <j:when test="${size(it.reports) == 1}">
+      <st:redirect url="report/${it.reports[0].name.toFileSystemName()}" />
     </j:when>
     <j:otherwise>
       <l:layout>
