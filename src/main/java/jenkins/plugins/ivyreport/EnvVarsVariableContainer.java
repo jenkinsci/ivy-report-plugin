@@ -35,30 +35,30 @@ import org.apache.ivy.core.settings.IvyVariableContainerImpl;
  * 
  */
 public class EnvVarsVariableContainer extends IvyVariableContainerImpl {
-	private EnvVars envVars;
+    private EnvVars envVars;
 
-	public EnvVarsVariableContainer(EnvVars envVars) {
-		this.envVars = envVars;
-	}
+    public EnvVarsVariableContainer(EnvVars envVars) {
+        this.envVars = envVars;
+    }
 
-	@Override
-	public String getVariable(String name) {
-		String val = null;
-		String envPrefix = getEnvironmentPrefix();
-		if ((envPrefix != null) && name.startsWith(envPrefix)) {
-			val = envVars.get(name.substring(envPrefix.length()));
-		} else {
-			val = super.getVariable(name);
-		}
-		return val;
-	}
+    @Override
+    public String getVariable(String name) {
+        String val = null;
+        String envPrefix = getEnvironmentPrefix();
+        if ((envPrefix != null) && name.startsWith(envPrefix)) {
+            val = envVars.get(name.substring(envPrefix.length()));
+        } else {
+            val = super.getVariable(name);
+        }
+        return val;
+    }
 
-	@Override
-	public Object clone() {
-		EnvVarsVariableContainer clone;
+    @Override
+    public Object clone() {
+        EnvVarsVariableContainer clone;
         clone = (EnvVarsVariableContainer) super.clone();
         clone.envVars = new EnvVars(envVars);
         return clone;
-	}
-	
+    }
+
 }

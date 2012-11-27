@@ -40,44 +40,44 @@ import org.kohsuke.stapler.StaplerResponse;
  * Action used to display the ivy report for the build
  * 
  * @author Cedric Chabanois (cchabanois at gmail.com)
- *
+ * 
  */
 public class IvyReportBuildAction implements Action {
-	private static final String ICON_FILENAME = "/plugin/ivy-report/ivyReport.png";
-	private final IvyModuleSetBuild build;
-	private final String indexFileName;
-	
-	public IvyReportBuildAction(IvyModuleSetBuild build, String indexFileName) {
-		this.build = build;
-		this.indexFileName = indexFileName;
-	}
+    private static final String ICON_FILENAME = "/plugin/ivy-report/ivyReport.png";
+    private final IvyModuleSetBuild build;
+    private final String indexFileName;
 
-	public String getUrlName() {
-		return "ivyreport";
-	}
+    public IvyReportBuildAction(IvyModuleSetBuild build, String indexFileName) {
+        this.build = build;
+        this.indexFileName = indexFileName;
+    }
 
-	public String getDisplayName() {
-		return "Ivy report";
-	}
+    public String getUrlName() {
+        return "ivyreport";
+    }
 
-	public String getIconFileName() {
-		return ICON_FILENAME;
-	}
+    public String getDisplayName() {
+        return "Ivy report";
+    }
 
-	public void doDynamic(StaplerRequest req, StaplerResponse rsp)
-			throws IOException, ServletException {
-		DirectoryBrowserSupport directoryBrowserSupport = new DirectoryBrowserSupport(
-				this, new FilePath(dir()), getTitle(), null, false);
-		directoryBrowserSupport.setIndexFileName(indexFileName);
-		directoryBrowserSupport.generateResponse(req, rsp, this);
-	}
+    public String getIconFileName() {
+        return ICON_FILENAME;
+    }
 
-	private File dir() {
-		return new File(build.getRootDir(), "ivyreport");
-	}
+    public void doDynamic(StaplerRequest req, StaplerResponse rsp)
+            throws IOException, ServletException {
+        DirectoryBrowserSupport directoryBrowserSupport = new DirectoryBrowserSupport(
+                this, new FilePath(dir()), getTitle(), null, false);
+        directoryBrowserSupport.setIndexFileName(indexFileName);
+        directoryBrowserSupport.generateResponse(req, rsp, this);
+    }
 
-	protected String getTitle() {
-		return build.getDisplayName() + " Ivy report";
-	}
+    private File dir() {
+        return new File(build.getRootDir(), "ivyreport");
+    }
+
+    protected String getTitle() {
+        return build.getDisplayName() + " Ivy report";
+    }
 
 }
