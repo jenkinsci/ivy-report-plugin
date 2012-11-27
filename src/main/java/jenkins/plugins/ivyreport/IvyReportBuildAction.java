@@ -46,72 +46,75 @@ import org.kohsuke.stapler.StaplerResponse;
  * 
  */
 public class IvyReportBuildAction implements Action {
-	private static final String ICON_FILENAME = "/plugin/ivy-report/ivyReport.png";
+    private static final String ICON_FILENAME = "/plugin/ivy-report/ivyReport.png";
 
-	private final File dir;
-	private List<IvyReport> reports;
+    private final File dir;
+    private List<IvyReport> reports;
 
-	// backward compatibility:
-	private IvyModuleSetBuild build;
-	private String indexFileName;
+    // backward compatibility:
+    private IvyModuleSetBuild build;
+    private String indexFileName;
 
-	private IvyReportBuildAction() {
-		this.dir = null;
-		this.reports = null;
-	}
+    private IvyReportBuildAction() {
+        this.dir = null;
+        this.reports = null;
+    }
 
-	public IvyReportBuildAction(File dir, List<IvyReport> reports) {
-		super();
-		this.dir = dir;
-		this.reports = reports;
-	}
+    public IvyReportBuildAction(File dir, List<IvyReport> reports) {
+        super();
+        this.dir = dir;
+        this.reports = reports;
+    }
 
-	public String getUrlName() {
-		return "ivyreport";
-	}
+    public String getUrlName() {
+        return "ivyreport";
+    }
 
-	public String getDisplayName() {
-		return "Ivy report";
-	}
+    public String getDisplayName() {
+        return "Ivy report";
+    }
 
-	public String getIconFileName() {
-		return ICON_FILENAME;
-	}
+    public String getIconFileName() {
+        return ICON_FILENAME;
+    }
 
-	public synchronized List<IvyReport> getReports() {
-		if (reports == null) {
-			File report = new File(new File(build.getRootDir(), "ivyreport"), indexFileName);
-			final ModuleName dummy = new ModuleName(null, null) {
-				private static final long serialVersionUID = 1L;
+    public synchronized List<IvyReport> getReports() {
+        if (reports == null) {
+            File report = new File(new File(build.getRootDir(), "ivyreport"),
+                    indexFileName);
+            final ModuleName dummy = new ModuleName(null, null) {
+                private static final long serialVersionUID = 1L;
 
-				@Override
-				public String toFileSystemName() {
-					return indexFileName;
-				}
-			};
-			reports = Collections.singletonList(new IvyReport(dummy, new FilePath(report)));
-		}
-		return reports;
-	}
+                @Override
+                public String toFileSystemName() {
+                    return indexFileName;
+                }
+            };
+            reports = Collections.singletonList(new IvyReport(dummy,
+                    new FilePath(report)));
+        }
+        return reports;
+    }
 
-	public IvyReport doReport(StaplerRequest req, StaplerResponse res) throws MalformedURLException, ServletException, IOException {
-		String moduleName = req.getRestOfPath();
-		if (!moduleName.isEmpty()) {
-			if (moduleName.charAt(0) == '/') {
-				moduleName = moduleName.substring(1);
-			}
-			for (IvyReport report : getReports()) {
-				if (moduleName.equals(report.getName().toFileSystemName())) {
-					return report;
-				}
-			}
-		}
-		// handle CSS, etc.
-		File siblingFile = new File(dir, moduleName);
-		if (siblingFile.exists()) {
-			res.serveFile(req, siblingFile.toURI().toURL());
-		}
-		return null;
-	}
+    public IvyReport doReport(StaplerRequest req, StaplerResponse res)
+            throws MalformedURLException, ServletException, IOException {
+        String moduleName = req.getRestOfPath();
+        if (!moduleName.isEmpty()) {
+            if (moduleName.charAt(0) == '/') {
+                moduleName = moduleName.substring(1);
+            }
+            for (IvyReport report : getReports()) {
+                if (moduleName.equals(report.getName().toFileSystemName())) {
+                    return report;
+                }
+            }
+        }
+        // handle CSS, etc.
+        File siblingFile = new File(dir, moduleName);
+        if (siblingFile.exists()) {
+            res.serveFile(req, siblingFile.toURI().toURL());
+        }
+        return null;
+    }
 
 }

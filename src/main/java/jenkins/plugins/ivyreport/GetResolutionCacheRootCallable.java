@@ -43,97 +43,101 @@ import org.apache.ivy.core.settings.IvySettings;
 import org.apache.ivy.util.Message;
 
 /**
- * Get the ivy resolution cache root on the slave or master that built the project  
+ * Get the ivy resolution cache root on the slave or master that built the
+ * project
  * 
  * @author Cedric Chabanois (cchabanois at gmail.com)
- *
+ * 
  */
 public class GetResolutionCacheRootCallable implements
-		Callable<FilePath, Throwable> {
-	private static final long serialVersionUID = 8422944415684825418L;
-	private final BuildListener listener;
-	private final String ivySettingsFile;
-	private final String ivySettingsPropertyFiles;
-	private final String ivyBranch;
-	private final String workspaceProper;
-	private final EnvVars envVars;
-	
-	public GetResolutionCacheRootCallable(BuildListener listener, IvyModuleSetBuild build) throws IOException, InterruptedException {
-		// project cannot be shipped to the remote JVM, so all the relevant
-		// properties need to be captured now.
-		this.listener = listener;
-		IvyModuleSet project = build.getProject();
-		this.ivyBranch = project.getIvyBranch();
-		this.ivySettingsFile = project.getIvySettingsFile();
-		this.ivySettingsPropertyFiles = project.getIvySettingsPropertyFiles();
-		this.workspaceProper = project.getLastBuild().getWorkspace()
-				.getRemote();
-		this.envVars = build.getEnvironment();
-	}
+        Callable<FilePath, Throwable> {
+    private static final long serialVersionUID = 8422944415684825418L;
+    private final BuildListener listener;
+    private final String ivySettingsFile;
+    private final String ivySettingsPropertyFiles;
+    private final String ivyBranch;
+    private final String workspaceProper;
+    private final EnvVars envVars;
 
-	@Override
-	public FilePath call() throws Throwable {
-		File resolutionCacheRoot = getResolutionCacheRoot();
-		if (resolutionCacheRoot == null) {
-			return null;
-		}
-		return new FilePath(resolutionCacheRoot);
-	}
+    public GetResolutionCacheRootCallable(BuildListener listener,
+            IvyModuleSetBuild build) throws IOException, InterruptedException {
+        // project cannot be shipped to the remote JVM, so all the relevant
+        // properties need to be captured now.
+        this.listener = listener;
+        IvyModuleSet project = build.getProject();
+        this.ivyBranch = project.getIvyBranch();
+        this.ivySettingsFile = project.getIvySettingsFile();
+        this.ivySettingsPropertyFiles = project.getIvySettingsPropertyFiles();
+        this.workspaceProper = project.getLastBuild().getWorkspace()
+                .getRemote();
+        this.envVars = build.getEnvironment();
+    }
 
-	private File getResolutionCacheRoot() throws AbortException {
-		PrintStream logger = listener.getLogger();
-		IvySettings ivySettings = getIvySettings(logger);
-		if (ivySettings == null) {
-			return null;
-		}
-		File resolutionCacheRoot = ivySettings.getResolutionCacheManager()
-				.getResolutionCacheRoot();
-		return resolutionCacheRoot;
-	}
+    @Override
+    public FilePath call() throws Throwable {
+        File resolutionCacheRoot = getResolutionCacheRoot();
+        if (resolutionCacheRoot == null) {
+            return null;
+        }
+        return new FilePath(resolutionCacheRoot);
+    }
 
-	private IvySettings getIvySettings(PrintStream logger) throws AbortException {
-		Message.setDefaultLogger(new IvyMessageImpl());
-		File settingsLoc = (ivySettingsFile == null) ? null : new File(
-				workspaceProper, ivySettingsFile);
+    private File getResolutionCacheRoot() throws AbortException {
+        PrintStream logger = listener.getLogger();
+        IvySettings ivySettings = getIvySettings(logger);
+        if (ivySettings == null) {
+            return null;
+        }
+        File resolutionCacheRoot = ivySettings.getResolutionCacheManager()
+                .getResolutionCacheRoot();
+        return resolutionCacheRoot;
+    }
 
-		if ((settingsLoc != null) && (!settingsLoc.exists())) {
-			throw new AbortException(
-					Messages.IvyModuleSetBuild_NoSuchIvySettingsFile(settingsLoc
-							.getAbsolutePath()));
-		}
+    private IvySettings getIvySettings(PrintStream logger)
+            throws AbortException {
+        Message.setDefaultLogger(new IvyMessageImpl());
+        File settingsLoc = (ivySettingsFile == null) ? null : new File(
+                workspaceProper, ivySettingsFile);
 
-		ArrayList<File> propertyFiles = new ArrayList<File>();
-		if (StringUtils.isNotBlank(ivySettingsPropertyFiles)) {
-			for (String file : ivySettingsPropertyFiles.split(",")) {
-				File propertyFile = new File(workspaceProper, file.trim());
-				if (!propertyFile.exists()) {
-					throw new AbortException(
-							Messages.IvyModuleSetBuild_NoSuchPropertyFile(propertyFile
-									.getAbsolutePath()));
-				}
-				propertyFiles.add(propertyFile);
-			}
-		}
-		try {
-			IvySettings ivySettings = new IvySettings(new EnvVarsVariableContainer(envVars));
-			for (File file : propertyFiles) {
-				ivySettings.loadProperties(file);
-			}
-			if (settingsLoc != null) {
-				ivySettings.load(settingsLoc);
-			} else {
-				ivySettings.loadDefault();
-			}
-			if (ivyBranch != null) {
-				ivySettings.setDefaultBranch(ivyBranch);
-			}
-			return ivySettings;
-		} catch (Exception e) {
-			logger.println("Error while reading the default Ivy 2.1 settings: "
-					+ e.getMessage());
-			logger.println(e.getStackTrace());
-		}
-		return null;
-	}
+        if ((settingsLoc != null) && (!settingsLoc.exists())) {
+            throw new AbortException(
+                    Messages.IvyModuleSetBuild_NoSuchIvySettingsFile(settingsLoc
+                            .getAbsolutePath()));
+        }
+
+        ArrayList<File> propertyFiles = new ArrayList<File>();
+        if (StringUtils.isNotBlank(ivySettingsPropertyFiles)) {
+            for (String file : ivySettingsPropertyFiles.split(",")) {
+                File propertyFile = new File(workspaceProper, file.trim());
+                if (!propertyFile.exists()) {
+                    throw new AbortException(
+                            Messages.IvyModuleSetBuild_NoSuchPropertyFile(propertyFile
+                                    .getAbsolutePath()));
+                }
+                propertyFiles.add(propertyFile);
+            }
+        }
+        try {
+            IvySettings ivySettings = new IvySettings(
+                    new EnvVarsVariableContainer(envVars));
+            for (File file : propertyFiles) {
+                ivySettings.loadProperties(file);
+            }
+            if (settingsLoc != null) {
+                ivySettings.load(settingsLoc);
+            } else {
+                ivySettings.loadDefault();
+            }
+            if (ivyBranch != null) {
+                ivySettings.setDefaultBranch(ivyBranch);
+            }
+            return ivySettings;
+        } catch (Exception e) {
+            logger.println("Error while reading the default Ivy 2.1 settings: "
+                    + e.getMessage());
+            logger.println(e.getStackTrace());
+        }
+        return null;
+    }
 
 }

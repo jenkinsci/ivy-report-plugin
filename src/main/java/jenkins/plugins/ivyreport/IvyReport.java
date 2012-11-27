@@ -36,27 +36,27 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
 public class IvyReport implements HttpResponse {
-	private final ModuleName name;
-	private final FilePath path;
+    private final ModuleName name;
+    private final FilePath path;
 
-	public IvyReport(ModuleName name, FilePath path) {
-		super();
-		this.name = name;
-		this.path = path;
-	}
+    public IvyReport(ModuleName name, FilePath path) {
+        super();
+        this.name = name;
+        this.path = path;
+    }
 
-	public ModuleName getName() {
-		return name;
-	}
+    public ModuleName getName() {
+        return name;
+    }
 
-	@Override
-	public void generateResponse(StaplerRequest req, StaplerResponse rsp,
-			Object node) throws IOException, ServletException {
-		try {
-			rsp.serveFile(req, path.toURI().toURL());
-		} catch (InterruptedException e) {
-			throw new IOException(e);
-		}
-	}
+    @Override
+    public void generateResponse(StaplerRequest req, StaplerResponse rsp,
+            Object node) throws IOException, ServletException {
+        try {
+            rsp.serveFile(req, path.toURI().toURL());
+        } catch (InterruptedException e) {
+            throw new IOException(e);
+        }
+    }
 
 }

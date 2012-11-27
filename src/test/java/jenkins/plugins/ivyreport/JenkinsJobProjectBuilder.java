@@ -16,56 +16,56 @@ import org.jvnet.hudson.test.ExtractResourceSCM;
  * 
  */
 public class JenkinsJobProjectBuilder {
-	private final String name;
-	private File resource;
-	private String ivySettingsFile;
-	private String ivySettingsPropertyFiles;
-	
-	private JenkinsJobProjectBuilder(String name) {
-		this.name = name;
-	}
+    private final String name;
+    private File resource;
+    private String ivySettingsFile;
+    private String ivySettingsPropertyFiles;
 
-	public static JenkinsJobProjectBuilder aJenkinsJobProject(String name) {
-		return new JenkinsJobProjectBuilder(name);
-	}
+    private JenkinsJobProjectBuilder(String name) {
+        this.name = name;
+    }
 
-	public JenkinsJobProjectBuilder withProjectZipFile(File resource) {
-		this.resource = resource;
-		return this;
-	}
+    public static JenkinsJobProjectBuilder aJenkinsJobProject(String name) {
+        return new JenkinsJobProjectBuilder(name);
+    }
 
-	public JenkinsJobProjectBuilder withIvySettingsFile(String ivySettingsFile) {
-		this.ivySettingsFile = ivySettingsFile;
-		return this;
-	}
-	
-	public JenkinsJobProjectBuilder withIvySettingsPropertyFiles(String ivySettingsPropertyFiles) {
-		this.ivySettingsPropertyFiles = ivySettingsPropertyFiles;
-		return this;
-	}
-	
-	public JenkinsJob create() throws Exception {
-		Hudson jenkins = Hudson.getInstance();
-		TopLevelItem item = jenkins.getItem(name);
-		if (item != null) {
-			item.delete();
-		}
-		IvyModuleSet job = jenkins.createProject(IvyModuleSet.class, name);
-		job.setIvySettingsFile(ivySettingsFile);
-		job.setIvySettingsPropertyFiles(ivySettingsPropertyFiles);
-		Field field = IvyModuleSet.class.getDeclaredField("ivyBuilderType");
-		try {
-			field.setAccessible(true);
-			field.set(job, new AntIvyBuilderType("default", "", "", "", ""));
-		} finally {
-			field.setAccessible(false);
-		}
-		job.getPublishers().add(
-				new IvyReportPublisher("default,compile"));
-		job.setScm(new ExtractResourceSCM(resource.toURI().toURL()));
+    public JenkinsJobProjectBuilder withProjectZipFile(File resource) {
+        this.resource = resource;
+        return this;
+    }
 
-		job.save();
-		return new JenkinsJob(job);
-	}
+    public JenkinsJobProjectBuilder withIvySettingsFile(String ivySettingsFile) {
+        this.ivySettingsFile = ivySettingsFile;
+        return this;
+    }
+
+    public JenkinsJobProjectBuilder withIvySettingsPropertyFiles(
+            String ivySettingsPropertyFiles) {
+        this.ivySettingsPropertyFiles = ivySettingsPropertyFiles;
+        return this;
+    }
+
+    public JenkinsJob create() throws Exception {
+        Hudson jenkins = Hudson.getInstance();
+        TopLevelItem item = jenkins.getItem(name);
+        if (item != null) {
+            item.delete();
+        }
+        IvyModuleSet job = jenkins.createProject(IvyModuleSet.class, name);
+        job.setIvySettingsFile(ivySettingsFile);
+        job.setIvySettingsPropertyFiles(ivySettingsPropertyFiles);
+        Field field = IvyModuleSet.class.getDeclaredField("ivyBuilderType");
+        try {
+            field.setAccessible(true);
+            field.set(job, new AntIvyBuilderType("default", "", "", "", ""));
+        } finally {
+            field.setAccessible(false);
+        }
+        job.getPublishers().add(new IvyReportPublisher("default,compile"));
+        job.setScm(new ExtractResourceSCM(resource.toURI().toURL()));
+
+        job.save();
+        return new JenkinsJob(job);
+    }
 
 }

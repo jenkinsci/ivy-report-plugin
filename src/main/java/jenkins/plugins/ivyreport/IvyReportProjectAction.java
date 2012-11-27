@@ -40,52 +40,55 @@ import org.kohsuke.stapler.StaplerResponse;
  * Action used to display the ivy report for the project
  * 
  * @author Cedric Chabanois (cchabanois at gmail.com)
- *
+ * 
  */
 public class IvyReportProjectAction implements Action, StaplerProxy {
-	private static final String ICON_FILENAME = "/plugin/ivy-report/ivyReport.png";
+    private static final String ICON_FILENAME = "/plugin/ivy-report/ivyReport.png";
 
-	public static class Noop {
-		public static final Noop INSTANCE = new Noop();
-		private Noop() {
-		}
+    public static class Noop {
+        public static final Noop INSTANCE = new Noop();
 
-		public void doDynamic(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
-			res.forwardToPreviousPage(req);
-		}
-	}
+        private Noop() {
+        }
 
-	private final IvyModuleSet project;
-	
-	public IvyReportProjectAction(IvyModuleSet ivyModuleSet) {
-		this.project = ivyModuleSet;
-	}
-	
-	@Override
-	public String getIconFileName() {
-		return ICON_FILENAME;
-	}
+        public void doDynamic(StaplerRequest req, StaplerResponse res)
+                throws ServletException, IOException {
+            res.forwardToPreviousPage(req);
+        }
+    }
 
-	@Override
-	public String getDisplayName() {
-		return "Ivy report";
-	}
+    private final IvyModuleSet project;
 
-	@Override
-	public String getUrlName() {
-		return "ivyreport";
-	} 
+    public IvyReportProjectAction(IvyModuleSet ivyModuleSet) {
+        this.project = ivyModuleSet;
+    }
 
-	@Override
-	public Object getTarget() {
-		for (AbstractBuild<?, ?> b = project.getLastSuccessfulBuild(); b != null; b = b.getPreviousNotFailedBuild()) {
-			if (b.getResult() == Result.FAILURE)
-				continue;
-			IvyReportBuildAction r = b.getAction(IvyReportBuildAction.class);
-			if (r != null)
-				return r;
-		}
-		return Noop.INSTANCE;
-	}
+    @Override
+    public String getIconFileName() {
+        return ICON_FILENAME;
+    }
+
+    @Override
+    public String getDisplayName() {
+        return "Ivy report";
+    }
+
+    @Override
+    public String getUrlName() {
+        return "ivyreport";
+    }
+
+    @Override
+    public Object getTarget() {
+        for (AbstractBuild<?, ?> b = project.getLastSuccessfulBuild(); b != null; b = b
+                .getPreviousNotFailedBuild()) {
+            if (b.getResult() == Result.FAILURE)
+                continue;
+            IvyReportBuildAction r = b.getAction(IvyReportBuildAction.class);
+            if (r != null)
+                return r;
+        }
+        return Noop.INSTANCE;
+    }
 
 }
