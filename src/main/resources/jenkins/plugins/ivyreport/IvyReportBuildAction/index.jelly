@@ -1,0 +1,22 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
+  <j:choose>
+    <j:when test="${size(it.reports) == 1}">
+      <st:redirect url="report/${it.reports[0].name.toFileSystemName()}" />
+    </j:when>
+    <j:otherwise>
+      <l:layout>
+        <l:side-panel />
+        <l:main-panel>
+          <h1>${%Ivy Reports}</h1>
+          <ul id="reportsList">
+            <j:forEach items="${it.reports}" var="report">
+              <li>
+                <a href="report/${report.name.toFileSystemName()}">${report.name.toString()}</a>
+              </li>
+            </j:forEach>
+          </ul>
+        </l:main-panel>
+      </l:layout>
+    </j:otherwise>
+  </j:choose>
+</j:jelly>

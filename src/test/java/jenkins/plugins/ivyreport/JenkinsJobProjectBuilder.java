@@ -61,7 +61,7 @@ public class JenkinsJobProjectBuilder {
 			field.setAccessible(false);
 		}
 		job.getPublishers().add(
-				new IvyReportPublisher("default,compile", "entropysoft-test"));
+				new IvyReportPublisher("default,compile"));
 		job.setScm(new ExtractResourceSCM(resource.toURI().toURL()));
 
 		job.save();
