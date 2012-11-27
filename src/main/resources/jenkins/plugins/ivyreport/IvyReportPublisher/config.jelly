@@ -3,10 +3,7 @@
   <!--
     This jelly script is used for per-project configuration.
   -->         
-    <f:entry title="Ivy Configurations" description="Ivy Configurations" field="ivyReportConfigurations">
-        <f:textbox />
-    </f:entry>
-    <f:entry title="Resolve id" description="The resolve id (generally [org]-[module])" field="resolveId">
+    <f:entry title="Ivy Configurations" description="Ivy Configurations (default *)" field="ivyReportConfigurations">
         <f:textbox />
     </f:entry>
 </j:jelly>

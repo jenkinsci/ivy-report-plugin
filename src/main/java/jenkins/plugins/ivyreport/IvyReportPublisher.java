@@ -28,6 +28,8 @@ import hudson.FilePath;
 import hudson.Functions;
 import hudson.Launcher;
 import hudson.Util;
+import hudson.ivy.ModuleName;
+import hudson.ivy.IvyModule;
 import hudson.ivy.IvyModuleSet;
 import hudson.ivy.IvyModuleSetBuild;
 import hudson.model.Action;
@@ -44,8 +46,10 @@ import hudson.util.FormValidation;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import net.sf.json.JSONObject;
 
@@ -61,18 +65,12 @@ import org.kohsuke.stapler.StaplerRequest;
  */
 public class IvyReportPublisher extends Recorder {
 	private final String ivyReportConfigurations;
-	private final String resolveId;
 
 	@DataBoundConstructor
-	public IvyReportPublisher(String ivyReportConfigurations, String resolveId) {
+	public IvyReportPublisher(String ivyReportConfigurations) {
 		this.ivyReportConfigurations = ivyReportConfigurations;
-		this.resolveId = resolveId;
 	}
 
-	public String getResolveId() {
-		return resolveId;
-	}
-	
 	public String getIvyReportConfigurations() {
 		return ivyReportConfigurations;
 	}
@@ -105,19 +103,13 @@ public class IvyReportPublisher extends Recorder {
 			if (resolutionCacheRoot == null) {
 				return true;
 			}
-			String[] confs = getConfs();
-			File reportsDir = new File(ivyModuleSetBuild.getRootDir(),
+			final File reportsDir = new File(ivyModuleSetBuild.getRootDir(),
 					"ivyreport");
 			reportsDir.mkdirs();
-			copyIvyReportFilesToMaster(resolutionCacheRoot, confs, reportsDir);
-			IvyReportGenerator ivyReportGenerator = new IvyReportGenerator(
-					Hudson.getInstance(), resolveId, confs, reportsDir,
-					reportsDir);
-			File htmlReport = ivyReportGenerator.generateReports();
+			final List<IvyReport> reports = buildPerModuleReports(ivyModuleSetBuild, reportsDir,
+					resolutionCacheRoot);
 
-			build.addAction(new IvyReportBuildAction(ivyModuleSetBuild,
-					htmlReport.getName()));
-
+			build.addAction(new IvyReportBuildAction(reportsDir, reports));
 			return true;
 		} catch (IOException e) {
 			listener.getLogger().println(
@@ -126,12 +118,31 @@ public class IvyReportPublisher extends Recorder {
 		}
 	}
 
+	private List<IvyReport> buildPerModuleReports(IvyModuleSetBuild build, File reportsDir, FilePath resolutionCacheRoot) throws IOException, InterruptedException {
+		List<IvyReport> result = new ArrayList<IvyReport>();
+		for (IvyModule module : build.getProject().getModules()) {
+			ModuleName moduleName = module.getModuleName();
+			String resolveId = moduleName.organisation + "-" + moduleName.name;
+
+			String[] confs = new IvyAccess(build, module).expandConfs(getConfs());
+			copyIvyReportFilesToMaster(resolutionCacheRoot, resolveId, confs,
+					reportsDir);
+			IvyReportGenerator ivyReportGenerator = new IvyReportGenerator(
+					Hudson.getInstance(), resolveId, confs, reportsDir,
+					reportsDir);
+			File htmlReport = ivyReportGenerator.generateReports();
+			result.add(new IvyReport(module.getModuleName(), new FilePath(htmlReport)));
+		}
+		return result;
+	}
+
 	private String[] getConfs() {
-		return getIvyReportConfigurations().replace(" ", "").split(",");
+		String condensed = getIvyReportConfigurations().replace(" ", "");
+		return condensed.isEmpty() ? new String[] { "*" } : condensed.split(",");
 	}
 
 	private FilePath getConfigurationResolveReportInCache(
-			FilePath resolutionCacheRoot, String conf) {
+			FilePath resolutionCacheRoot, String resolveId, String conf) {
 		return new FilePath(resolutionCacheRoot, resolveId + "-" + conf
 				+ ".xml");
 	}
@@ -150,11 +161,11 @@ public class IvyReportPublisher extends Recorder {
 	}
 
 	private void copyIvyReportFilesToMaster(FilePath resolutionCacheRoot,
-			String[] confs, File targetDir) throws IOException,
+			String resolveId, String[] confs, File targetDir) throws IOException,
 			InterruptedException {
 		for (String conf : confs) {
 			FilePath report = getConfigurationResolveReportInCache(
-					resolutionCacheRoot, conf);
+					resolutionCacheRoot, resolveId, conf);
 			if (!report.exists()) {
 				throw new IOException("Report file does not exist : "
 						+ report.getRemote());

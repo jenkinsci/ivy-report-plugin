@@ -13,10 +13,15 @@
   <url>http://wiki.jenkins-ci.org/display/JENKINS/Ivy+Report+Plugin</url>
 
   <developers>
-  	<developer>
+    <developer>
       <id>cchabanois</id>
       <name>Cedric Chabanois</name>
       <email>cchabanois@gmail.com</email>
+    </developer>
+    <developer>
+      <id>mbenson</id>
+      <name>Matt Benson</name>
+      <email>gudnabrsam@gmail.com</email>
     </developer>
   </developers>
 
