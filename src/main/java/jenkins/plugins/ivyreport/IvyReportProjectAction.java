@@ -39,42 +39,41 @@ import org.kohsuke.stapler.StaplerResponse;
  * Action used to display the ivy report for the project
  * 
  * @author Cedric Chabanois (cchabanois at gmail.com)
- * 
+ *
  */
 public class IvyReportProjectAction implements Action {
-    private final IvyModuleSet project;
-    private static final String ICON_FILENAME = "/plugin/ivy-report/ivyReport.png";
+	private final IvyModuleSet project;
+	private static final String ICON_FILENAME = "/plugin/ivy-report/ivyReport.png";
+	
+	public IvyReportProjectAction(IvyModuleSet ivyModuleSet) {
+		this.project = ivyModuleSet;
+	}
+	
+	@Override
+	public String getIconFileName() {
+		return ICON_FILENAME;
+	}
 
-    public IvyReportProjectAction(IvyModuleSet ivyModuleSet) {
-        this.project = ivyModuleSet;
-    }
+	@Override
+	public String getDisplayName() {
+		return "Ivy report";
+	}
 
-    @Override
-    public String getIconFileName() {
-        return ICON_FILENAME;
-    }
+	@Override
+	public String getUrlName() {
+		return "ivyreport";
+	} 
 
-    @Override
-    public String getDisplayName() {
-        return "Ivy report";
-    }
-
-    @Override
-    public String getUrlName() {
-        return "ivyreport";
-    }
-
-    public void doDynamic(StaplerRequest req, StaplerResponse rsp)
-            throws IOException, ServletException {
-        IvyReportBuildAction lastResult = getLastResult();
-        if (lastResult != null) {
-            lastResult.doDynamic(req, rsp);
-        }
-    }
-
-    private IvyReportBuildAction getLastResult() {
-        for (AbstractBuild<?, ?> b = project.getLastSuccessfulBuild(); b != null; b = b
-                .getPreviousNotFailedBuild()) {
+	public void doDynamic(StaplerRequest req, StaplerResponse rsp)
+			throws IOException, ServletException {
+		IvyReportBuildAction lastResult = getLastResult();
+		if (lastResult != null) {
+			lastResult.doDynamic(req, rsp);
+		}
+	}
+	
+	private IvyReportBuildAction getLastResult() {
+		for (AbstractBuild<?, ?> b = project.getLastSuccessfulBuild(); b != null; b = b.getPreviousNotFailedBuild()) {
             if (b.getResult() == Result.FAILURE)
                 continue;
             IvyReportBuildAction r = b.getAction(IvyReportBuildAction.class);
@@ -82,6 +81,6 @@ public class IvyReportProjectAction implements Action {
                 return r;
         }
         return null;
-    }
-
+	}
+	
 }

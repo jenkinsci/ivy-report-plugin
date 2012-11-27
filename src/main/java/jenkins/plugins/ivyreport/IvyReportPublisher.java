@@ -60,178 +60,177 @@ import org.kohsuke.stapler.StaplerRequest;
  * 
  */
 public class IvyReportPublisher extends Recorder {
-    private final String ivyReportConfigurations;
-    private final String resolveId;
+	private final String ivyReportConfigurations;
+	private final String resolveId;
 
-    @DataBoundConstructor
-    public IvyReportPublisher(String ivyReportConfigurations, String resolveId) {
-        this.ivyReportConfigurations = ivyReportConfigurations;
-        this.resolveId = resolveId;
-    }
+	@DataBoundConstructor
+	public IvyReportPublisher(String ivyReportConfigurations, String resolveId) {
+		this.ivyReportConfigurations = ivyReportConfigurations;
+		this.resolveId = resolveId;
+	}
 
-    public String getResolveId() {
-        return resolveId;
-    }
+	public String getResolveId() {
+		return resolveId;
+	}
+	
+	public String getIvyReportConfigurations() {
+		return ivyReportConfigurations;
+	}
 
-    public String getIvyReportConfigurations() {
-        return ivyReportConfigurations;
-    }
+	public BuildStepMonitor getRequiredMonitorService() {
+		return BuildStepMonitor.BUILD;
+	}
 
-    public BuildStepMonitor getRequiredMonitorService() {
-        return BuildStepMonitor.BUILD;
-    }
+	@Override
+	public Collection<? extends Action> getProjectActions(
+			AbstractProject<?, ?> project) {
+		return Collections.singletonList(new IvyReportProjectAction(
+				(IvyModuleSet) project));
+	}
 
-    @Override
-    public Collection<? extends Action> getProjectActions(
-            AbstractProject<?, ?> project) {
-        return Collections.singletonList(new IvyReportProjectAction(
-                (IvyModuleSet) project));
-    }
+	@Override
+	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher,
+			BuildListener listener) throws InterruptedException, IOException {
+		if (build.getResult().isWorseThan(Result.UNSTABLE)) {
+			listener.getLogger()
+					.println(
+							"Skipping ivy report as build was not UNSTABLE or better ...");
+			return true;
+		}
+		try {
+			listener.getLogger().println("Publishing ivy report...");
+			IvyModuleSetBuild ivyModuleSetBuild = (IvyModuleSetBuild) build;
+			FilePath resolutionCacheRoot = getResolutionCacheRoot(
+					ivyModuleSetBuild, listener);
+			if (resolutionCacheRoot == null) {
+				return true;
+			}
+			String[] confs = getConfs();
+			File reportsDir = new File(ivyModuleSetBuild.getRootDir(),
+					"ivyreport");
+			reportsDir.mkdirs();
+			copyIvyReportFilesToMaster(resolutionCacheRoot, confs, reportsDir);
+			IvyReportGenerator ivyReportGenerator = new IvyReportGenerator(
+					Hudson.getInstance(), resolveId, confs, reportsDir,
+					reportsDir);
+			File htmlReport = ivyReportGenerator.generateReports();
 
-    @Override
-    public boolean perform(AbstractBuild<?, ?> build, Launcher launcher,
-            BuildListener listener) throws InterruptedException, IOException {
-        if (build.getResult().isWorseThan(Result.UNSTABLE)) {
-            listener.getLogger()
-                    .println(
-                            "Skipping ivy report as build was not UNSTABLE or better ...");
-            return true;
-        }
-        try {
-            listener.getLogger().println("Publishing ivy report...");
-            IvyModuleSetBuild ivyModuleSetBuild = (IvyModuleSetBuild) build;
-            FilePath resolutionCacheRoot = getResolutionCacheRoot(
-                    ivyModuleSetBuild, listener);
-            if (resolutionCacheRoot == null) {
-                return true;
-            }
-            String[] confs = getConfs();
-            File reportsDir = new File(ivyModuleSetBuild.getRootDir(),
-                    "ivyreport");
-            reportsDir.mkdirs();
-            copyIvyReportFilesToMaster(resolutionCacheRoot, confs, reportsDir);
-            IvyReportGenerator ivyReportGenerator = new IvyReportGenerator(
-                    Hudson.getInstance(), resolveId, confs, reportsDir,
-                    reportsDir);
-            File htmlReport = ivyReportGenerator.generateReports();
+			build.addAction(new IvyReportBuildAction(ivyModuleSetBuild,
+					htmlReport.getName()));
 
-            build.addAction(new IvyReportBuildAction(ivyModuleSetBuild,
-                    htmlReport.getName()));
+			return true;
+		} catch (IOException e) {
+			listener.getLogger().println(
+					"Could not generate ivy reports : " + e.getMessage());
+			return true;
+		}
+	}
 
-            return true;
-        } catch (IOException e) {
-            listener.getLogger().println(
-                    "Could not generate ivy reports : " + e.getMessage());
-            return true;
-        }
-    }
+	private String[] getConfs() {
+		return getIvyReportConfigurations().replace(" ", "").split(",");
+	}
 
-    private String[] getConfs() {
-        return getIvyReportConfigurations().replace(" ", "").split(",");
-    }
+	private FilePath getConfigurationResolveReportInCache(
+			FilePath resolutionCacheRoot, String conf) {
+		return new FilePath(resolutionCacheRoot, resolveId + "-" + conf
+				+ ".xml");
+	}
 
-    private FilePath getConfigurationResolveReportInCache(
-            FilePath resolutionCacheRoot, String conf) {
-        return new FilePath(resolutionCacheRoot, resolveId + "-" + conf
-                + ".xml");
-    }
+	private FilePath getResolutionCacheRoot(IvyModuleSetBuild build,
+			BuildListener listener) {
+		try {
+			FilePath resolutionCacheRoot = build.getModuleRoot().act(
+					new GetResolutionCacheRootCallable(listener, build));
+			return resolutionCacheRoot;
+		} catch (Throwable e) {
+			listener.getLogger().println(
+					"Cannot get the ivy resolution cache root : "+e.getMessage());
+			return null;
+		}
+	}
 
-    private FilePath getResolutionCacheRoot(IvyModuleSetBuild build,
-            BuildListener listener) {
-        try {
-            FilePath resolutionCacheRoot = build.getModuleRoot().act(
-                    new GetResolutionCacheRootCallable(listener, build));
-            return resolutionCacheRoot;
-        } catch (Throwable e) {
-            listener.getLogger().println(
-                    "Cannot get the ivy resolution cache root : "
-                            + e.getMessage());
-            return null;
-        }
-    }
+	private void copyIvyReportFilesToMaster(FilePath resolutionCacheRoot,
+			String[] confs, File targetDir) throws IOException,
+			InterruptedException {
+		for (String conf : confs) {
+			FilePath report = getConfigurationResolveReportInCache(
+					resolutionCacheRoot, conf);
+			if (!report.exists()) {
+				throw new IOException("Report file does not exist : "
+						+ report.getRemote());
+			}
+			report.copyTo(new FilePath(new File(targetDir, report.getName())));
+		}
+	}
 
-    private void copyIvyReportFilesToMaster(FilePath resolutionCacheRoot,
-            String[] confs, File targetDir) throws IOException,
-            InterruptedException {
-        for (String conf : confs) {
-            FilePath report = getConfigurationResolveReportInCache(
-                    resolutionCacheRoot, conf);
-            if (!report.exists()) {
-                throw new IOException("Report file does not exist : "
-                        + report.getRemote());
-            }
-            report.copyTo(new FilePath(new File(targetDir, report.getName())));
-        }
-    }
+	@Override
+	public BuildStepDescriptor<Publisher> getDescriptor() {
+		return DESCRIPTOR;
+	}
 
-    @Override
-    public BuildStepDescriptor<Publisher> getDescriptor() {
-        return DESCRIPTOR;
-    }
+	/**
+	 * Descriptor should be singleton.
+	 */
+	@Extension
+	public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
-    /**
-     * Descriptor should be singleton.
-     */
-    @Extension
-    public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
+	/**
+	 * Descriptor for {@link IvyReportPublisher}. Used as singleton.
+	 * 
+	 * 
+	 */
+	public static final class DescriptorImpl extends
+			BuildStepDescriptor<Publisher> {
 
-    /**
-     * Descriptor for {@link IvyReportPublisher}. Used as singleton.
-     * 
-     * 
-     */
-    public static final class DescriptorImpl extends
-            BuildStepDescriptor<Publisher> {
+		private String dotExe;
 
-        private String dotExe;
+		public DescriptorImpl() {
+			super(IvyReportPublisher.class);
+			load();
+		}
 
-        public DescriptorImpl() {
-            super(IvyReportPublisher.class);
-            load();
-        }
+		@Override
+		public boolean configure(StaplerRequest req, JSONObject json)
+				throws hudson.model.Descriptor.FormException {
+			dotExe = Util.fixEmptyAndTrim(json.getString("dotExe"));
+			save();
 
-        @Override
-        public boolean configure(StaplerRequest req, JSONObject json)
-                throws hudson.model.Descriptor.FormException {
-            dotExe = Util.fixEmptyAndTrim(json.getString("dotExe"));
-            save();
+			return true;
+		}
 
-            return true;
-        }
+		@Override
+		public boolean isApplicable(Class<? extends AbstractProject> jobType) {
+			return IvyModuleSet.class.isAssignableFrom(jobType);
+		}
 
-        @Override
-        public boolean isApplicable(Class<? extends AbstractProject> jobType) {
-            return IvyModuleSet.class.isAssignableFrom(jobType);
-        }
+		@Override
+		public String getDisplayName() {
+			return "Publish ivy dependency report";
+		}
 
-        @Override
-        public String getDisplayName() {
-            return "Publish ivy dependency report";
-        }
+		public String getDotExe() {
+			return dotExe;
+		}
 
-        public String getDotExe() {
-            return dotExe;
-        }
+		/**
+		 * @return configured dot executable or a default
+		 */
+		public String getDotExeOrDefault() {
+			if (Util.fixEmptyAndTrim(dotExe) == null) {
+				return getDefaultDotExe();
+			} else {
+				return dotExe;
+			}
+		}
 
-        /**
-         * @return configured dot executable or a default
-         */
-        public String getDotExeOrDefault() {
-            if (Util.fixEmptyAndTrim(dotExe) == null) {
-                return getDefaultDotExe();
-            } else {
-                return dotExe;
-            }
-        }
+		public static String getDefaultDotExe() {
+			return Functions.isWindows() ? "dot.exe" : "dot";
+		}
 
-        public static String getDefaultDotExe() {
-            return Functions.isWindows() ? "dot.exe" : "dot";
-        }
+		public FormValidation doCheckDotExe(@QueryParameter final String value) {
+			return FormValidation.validateExecutable(value);
+		}
 
-        public FormValidation doCheckDotExe(@QueryParameter final String value) {
-            return FormValidation.validateExecutable(value);
-        }
-
-    }
+	}
 
 }

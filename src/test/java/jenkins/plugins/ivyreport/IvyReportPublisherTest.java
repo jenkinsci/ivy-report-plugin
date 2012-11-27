@@ -18,34 +18,34 @@ import com.google.common.io.Files;
  * 
  */
 public class IvyReportPublisherTest extends HudsonTestCase {
-    private static final String IVY_SETTINGS_PROPERTY_FILES = "ivyconf.properties";
-    private static final String IVY_SETTINGS_FILE = "ivyconf.xml";
+	private static final String IVY_SETTINGS_PROPERTY_FILES = "ivyconf.properties";
+	private static final String IVY_SETTINGS_FILE = "ivyconf.xml";
 
-    public void testIvyReport() throws Exception {
-        // Given
-        JenkinsJob job = aJenkinsJobProject("ivyProject")
-                .withProjectZipFile(new File("resources/ivyProject.zip"))
-                .withIvySettingsFile(IVY_SETTINGS_FILE)
-                .withIvySettingsPropertyFiles(IVY_SETTINGS_PROPERTY_FILES)
-                .create();
+	public void testIvyReport() throws Exception {
+		// Given
+		JenkinsJob job = aJenkinsJobProject("ivyProject")
+				.withProjectZipFile(new File("resources/ivyProject.zip"))
+				.withIvySettingsFile(IVY_SETTINGS_FILE)
+				.withIvySettingsPropertyFiles(IVY_SETTINGS_PROPERTY_FILES)
+				.create();
 
-        // When
-        Run run = job.run();
+		// When
+		Run run = job.run();
 
-        // Then
-        assertEquals(run.getLog(), Result.SUCCESS, run.getResult());
-        assertTrue(run.getLog().contains("Publishing ivy report..."));
-        File ivyReportDir = new File(run.getRootDir(), "ivyreport");
+		// Then
+		assertEquals(run.getLog(), Result.SUCCESS, run.getResult());
+		assertTrue(run.getLog().contains("Publishing ivy report..."));
+		File ivyReportDir = new File(run.getRootDir(), "ivyreport");
 
-        File compileHtmlFile = new File(ivyReportDir,
-                "entropysoft-test-compile.html");
-        assertTrue(compileHtmlFile.exists());
-        assertTrue(new File(ivyReportDir, "entropysoft-test-compile.svg")
-                .exists());
-        File defaultHtmlFile = new File(ivyReportDir,
-                "entropysoft-test-default.html");
-        assertTrue(defaultHtmlFile.exists());
-        assertTrue(new File(ivyReportDir, "entropysoft-test-default.svg")
-                .exists());
-    }
+		File compileHtmlFile = new File(ivyReportDir,
+				"entropysoft-test-compile.html");
+		assertTrue(compileHtmlFile.exists());
+		assertTrue(new File(ivyReportDir, "entropysoft-test-compile.svg")
+				.exists());
+		File defaultHtmlFile = new File(ivyReportDir,
+				"entropysoft-test-default.html");
+		assertTrue(defaultHtmlFile.exists());
+		assertTrue(new File(ivyReportDir, "entropysoft-test-default.svg")
+				.exists());
+	}
 }
