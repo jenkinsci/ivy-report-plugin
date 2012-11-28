@@ -64,6 +64,10 @@ import org.kohsuke.stapler.StaplerRequest;
  * 
  */
 public class IvyReportPublisher extends Recorder {
+    @SuppressWarnings("unused")
+    @Deprecated
+    private transient String resolveId;
+
     private final String ivyReportConfigurations;
 
     @DataBoundConstructor
