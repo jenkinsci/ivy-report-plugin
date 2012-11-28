@@ -48,17 +48,12 @@ import org.kohsuke.stapler.StaplerResponse;
 public class IvyReportBuildAction implements Action {
     private static final String ICON_FILENAME = "/plugin/ivy-report/ivyReport.png";
 
-    private final File dir;
+    private File dir;
     private List<IvyReport> reports;
 
     // backward compatibility:
-    private IvyModuleSetBuild build;
-    private String indexFileName;
-
-    private IvyReportBuildAction() {
-        this.dir = null;
-        this.reports = null;
-    }
+    private transient IvyModuleSetBuild build;
+    private transient String indexFileName;
 
     public IvyReportBuildAction(File dir, List<IvyReport> reports) {
         super();
@@ -78,21 +73,7 @@ public class IvyReportBuildAction implements Action {
         return ICON_FILENAME;
     }
 
-    public synchronized List<IvyReport> getReports() {
-        if (reports == null) {
-            File report = new File(new File(build.getRootDir(), "ivyreport"),
-                    indexFileName);
-            final ModuleName dummy = new ModuleName(null, null) {
-                private static final long serialVersionUID = 1L;
-
-                @Override
-                public String toFileSystemName() {
-                    return indexFileName;
-                }
-            };
-            reports = Collections.singletonList(new IvyReport(dummy,
-                    new FilePath(report)));
-        }
+    public List<IvyReport> getReports() {
         return reports;
     }
 
@@ -117,4 +98,22 @@ public class IvyReportBuildAction implements Action {
         return null;
     }
 
+    private Object readResolve() {
+        if (indexFileName != null) {
+            dir = new File(build.getRootDir(), "ivyreport");
+            final File report = new File(new File(build.getRootDir(), "ivyreport"),
+                    indexFileName);
+            final ModuleName dummy = new ModuleName(null, null) {
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public String toFileSystemName() {
+                    return indexFileName;
+                }
+            };
+            reports = Collections.singletonList(new IvyReport(dummy,
+                    new FilePath(report)));
+        }
+        return this;
+    }
 }
